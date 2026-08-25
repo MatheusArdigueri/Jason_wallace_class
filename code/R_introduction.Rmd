@@ -1,0 +1,90 @@
+---
+title: "R_introduction"
+author: "Matheus Ardigueri"
+date: "2026-08-25"
+output: html_document
+---
+
+This is the introductory part of R in CRSS 8010 class.
+
+# Header 1
+## Header 2
+### Header 3
+
+```{r Create vector and printing vector}
+vector <- c("Alpha","Bravo","Charlie","Delta","Cherlie","Epsilon","Foxtrot")
+vector
+```
+```{r Access different names inside a vector}
+vector[c(1,3,6)]
+
+# With - it will show all exept the one we removed (THE NUMBER)
+```
+```{r Creating newvector accessing old vector}
+newvector <- vector[c(6,2,4)]
+newvector
+```
+```{r}
+library(lme4)
+library(dplyr)
+library(tidyverse)
+library(janitor)
+```
+
+```{r Making a dataframe}
+
+# nums = c(1,2,3) column name will be numns, values will be on the concatenated list
+
+myframe <- data.frame(c(1,2,3), c("A","B","C"), c(14.2, 67.2, 98.5))
+myframe
+
+
+```
+
+```{r Reniaming with dplyr and janitor}
+myframe <- myframe %>%
+  rename(nums = c.1..2..3.,
+         letters = c..A....B....C..,
+         decimals = c.14.2..67.2..98.5.)
+myframe
+
+```
+```{r Accessing data inside dataframe}
+
+# Accessing data [rows, columns]
+myframe$letters[2]
+myframe[1,"nums"]
+```
+```{r Add a column}
+
+myframe$newcol <- c("X","Z","Q")
+myframe
+
+myframe$letters <- NULL # will delete the column letters (Assign NULL, no longer exists)
+
+```
+
+```{r Dimensions}
+
+nrow(myframe)
+ncol(myframe)
+
+```
+```{r Names}
+
+# These functions can be used to change names and data
+
+names(myframe)
+colnames(myframe)
+rownames(myframe)
+
+```
+
+```{r First and last rows}
+
+head(myframe,1)
+
+tail(myframe,2)
+
+```
+
