@@ -1,0 +1,4 @@
+"year" "plot" "crop" "nitrogen" "phosphorus"
+"1" 2018 1 "corn" 100 15
+"2" 2018 2 "soy" 50 30
+"3" 2018 3 "cotton" 70 60

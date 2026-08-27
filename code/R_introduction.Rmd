@@ -25,6 +25,8 @@ newvector <- vector[c(6,2,4)]
 newvector
 ```
 ```{r}
+# install.packages("grid.Extra")
+# install.packages("ggpubr")
 library(lme4)
 library(dplyr)
 library(tidyverse)
@@ -87,4 +89,6 @@ head(myframe,1)
 tail(myframe,2)
 
 ```
+
+
 
