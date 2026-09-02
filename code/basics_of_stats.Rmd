@@ -1,0 +1,11 @@
+---
+title: "Basics_of_stats"
+author: "Matheus Ardigueri"
+date: "2026-09-02"
+output: html_document
+---
+
+```{r}
+
+```
+
