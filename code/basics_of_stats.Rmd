@@ -6,6 +6,106 @@ output: html_document
 ---
 
 ```{r}
+df <- read.csv("../data/05_input1.csv")
+
+df
+```
+
+```{r}
+df[df$variety == "Azurite",] # Boolean index (Rows, Columns)
+```
+```{r}
+mean( df$yield[df$variety == "Cerulean"])
+```
+```{r}
+newdf <- df[df$yield >= 14,]
+
+write.csv(newdf, file = "../output/05_output1.csv")
+```
+
+```{r}
+df_2 <- read.csv("../data/05_input1.csv")
 
 ```
+
+```{r}
+# Combining DFs
+
+plot = c(17, 18)
+variety = c("check1", "check2")
+yield = c(15.1, 14.7)
+
+
+df_3 <- data.frame( "plot" = plot,
+                    "variety" = variety,
+                    "yield" = yield)
+
+
+df_merged <- rbind(df_2, df_3)
+
+# Seting to missing
+
+df_merged$yield[df_merged$variety == "BlueBell"] == NA
+
+
+# filter to have only non missing values and write to output that file
+
+output <- df_merged[!is.na(df_merged$yield),] # ! This will make the opposite for 
+
+write.csv(output, file = "../output/05_secoutput.csv")
+```
+
+Mean <- Expected values 
+
+```{r }
+data <- c(4,5,6,2,4)
+
+mean(data)
+```
+Variance <- Variability around the mean. Determining what causes variance is the core of the experimental design and analysis. AN EXPERIMENT WITHOUT VARIATION CANNOT BE ANALYZED (Averaged difference between one value and the mean)
+
+```{r}
+```
+```{r}
+data <- c(4,5,6,2,4)
+mymean <- mean(data)
+diffs <- data - mymean
+sq_diffs <- diffs^2
+total_diffs <- sum(sq_diffs)
+pop_var <- total_diffs / length(data)
+sample_variance <- total_diffs / (length(data) -1)
+
+pop_var
+sample_variance
+
+```
+# VARIANCE
+
+```{r}
+dvar <- read.csv("../data/05_variance.csv")
+
+dvar
+```
+
+```{r}
+mean2 <- mean(dvar$samples, na.rm = T)
+
+diffs2 <- dvar$samples - mean2
+
+sq_dfs2 <- diffs2 ^2
+
+total_difffs2 <- sum(sq_dfs2)
+
+pop_var2 <- total_difffs2 / length(dvar$samples)
+
+sample_variance2 <- total_difffs2 / (length(dvar$samples) - 1)
+
+pop_var2
+
+sample_variance2
+```
+```{r}
+var(dvar$samples)
+```
+
 
