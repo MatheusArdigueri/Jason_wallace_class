@@ -1,0 +1,81 @@
+---
+title: "Practice ex 06"
+author: "Matheus Ardigueri"
+date: "2026-09-03"
+output: html_document
+---
+
+```{r}
+df <- read.csv("./data/06_review_maize.csv")
+
+df
+```
+```{r}
+plots <- c(501, 502)
+variety <- c("ckeck1", "check2")
+weight <- c(23.1, 22.4)
+
+df2 <- data.frame("plots" = plots,
+                  "variety" = variety,
+                  "weight" = weight)
+
+df2
+```
+
+```{r}
+df3 <- rbind(df, df2)
+
+df3
+```
+```{r}
+
+df3$weight[df3$variety == "Gaspe"] = NA
+
+df3
+```
+
+```{r}
+newdf <- df3[!is.na(df3$weight) & df3$weight > 20, ]
+newdf
+```
+
+```{r}
+maize <- read.csv("./data/06_review_maize.csv")
+
+
+unique(maize$variety)
+
+
+#B73
+mean(maize[maize$variety == "B73",]$weight)
+var(maize[maize$variety == "B73",]$weight)
+
+#"Oaxaca184"
+
+mean(maize[maize$variety == "Oaxaca184",]$weight)
+var(maize[maize$variety == "Oaxaca184",]$weight)
+
+#"A231"
+
+mean(maize[maize$variety == "A231",]$weight)
+var(maize[maize$variety == "A231",]$weight)
+
+# "Gaspe"
+
+mean(maize[maize$variety == "Gaspe",]$weight)
+var(maize[maize$variety == "Gaspe",]$weight)
+
+```
+# Random sampling in R
+
+```{r}
+sample(1:10, size = 5, replace = F) # This will create numbers from 1 to 10, pick 5 random ones and not replacing, so we will not have the same number again.
+
+```
+```{r}
+set.seed(8810)
+
+sample(LETTERS, size =8, replace = F)
+
+```
+
