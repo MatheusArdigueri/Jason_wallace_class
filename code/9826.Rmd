@@ -1,0 +1,71 @@
+---
+title: "Class 9/8/26"
+output: html_notebook
+---
+
+```{r}
+set.seed(1)
+
+ten <-rnorm(10) #Making a random drawn of 10 from the normal distribution
+hundred <- rnorm(100) #Making a random drawn of 100 from the normal distribution
+tenthous <- rnorm(10000) #Making a random drawn of 10000 from the normal distribution
+
+```
+
+```{r}
+#ten
+mean(ten)
+var(ten)
+
+```
+```{r}
+#hundred
+mean(hundred)
+var(hundred)
+```
+
+```{r}
+#tenthous
+mean(tenthous)
+var(tenthous)
+```
+
+```{r}
+#Plot with hist
+
+hist(ten)
+```
+```{r}
+hist(hundred)
+```
+```{r}
+hist(tenthous)
+```
+```{r ANOVA Calculated by hand}
+a <- c(5,4,5)
+b <- c(7,6,8)
+
+scores <- c(a, b)
+
+meanA <- mean(a)
+meanB <- mean(b)
+mean_all <- mean(scores)
+
+
+ssA <- (meanA - mean_all)^2 * length(a)
+ssB <- (meanB - mean_all) ^2 * length(b)
+sstotal <- ssA + ssB
+
+errorA <- sum((a - meanA)^2)
+errorB <- sum((b- meanB)^2)
+error <- errorA + errorB
+
+ms_trt <- sstotal / 1 #( two treatments - 1)
+ms_error <- error / 4 
+
+F <- ms_trt / ms_error
+
+F
+
+```
+
