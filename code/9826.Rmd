@@ -68,4 +68,79 @@ F <- ms_trt / ms_error
 F
 
 ```
+```{r Another anova}
+
+Fortune <- c(42, 47)
+Bugz <- c(65, 62)
+Eliminator <- c(48, 44)
+
+scores <- c(Fortune, Bugz, Eliminator)
+
+#FIrst step is to calcuulate the mean
+
+meanF <- mean(Fortune)
+meanB <- mean(Bugz)
+meanE <- mean(Eliminator)
+mean_all <- mean(scores)
+
+# Second step is to calculate the sum of sqares
+
+ssF <- (meanF - mean_all) ^2 * length(Fortune)
+ssB <- (meanB - mean_all) ^2 * length(Bugz)
+ssE <- (meanE - mean_all) ^2 * length(Eliminator)
+ssall <- ssF + ssB + ssE
+
+# Third step is to calculate the errors
+
+errorF <- sum((Fortune - meanF)^2)
+errorB <- sum((Bugz- meanB)^2)
+errorE <- sum((Eliminator- meanE)^2)
+error <- errorF + errorB + errorE
+
+dof_treatments <- 2 
+dof_error <- 3
+
+ms_trt <- ssall / dof_treatments 
+ms_error <- error / dof_error 
+
+F <- ms_trt / ms_error
+
+F
+
+
+```
+```{r}
+# Getting p-values
+
+Fstats <- 8
+
+pf( Fstats, df1 = 3, df2 = 15) #df1 treatments, df2 error
+
+1 - pf( Fstats, df1 = 3, df2 = 15) # Manually
+
+pf( Fstats, df1 = 3, df2 = 15, lower.tail = FALSE) # Auto, Lower.tail will auto do the (1 - pf) for us.
+
+
+# Cutoffs
+qf(0.05, df1 = 3, df2 = 15, lower.tail = FALSE)
+
+```
+```{r}
+# in class exercise
+
+Fstats2 <- 26.78
+
+# P-value
+
+pf(Fstats2, df1 = 2, df2 = 3, lower.tail = FALSE)
+
+# The p-value is the percent probability if the H0 is true that the observed treatment would happen alone. 
+```
+```{r}
+thrips <- read.csv("../data/08_thrips.csv")
+
+model <- aov(thrips ~ treatment , data = thrips) # Thrips is explained by the column treatment and the data is thrips.
+
+summary(model)
+```
 
