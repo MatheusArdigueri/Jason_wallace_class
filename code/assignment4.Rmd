@@ -1,0 +1,109 @@
+---
+title: "Assignment 4 CRSS 8010"
+author: "Matheus Ardigueri"
+date: "09/15/2026"
+output:
+  html_document:
+    df_print: paged
+---
+
+# 4 Assignment - ANOVA.
+
+## A group is testing 3 different treatments for thrombocytopenia (low platelet count)
+
+## The file 08_platelets.csv contains data from their trial of 96 patients (24 per treatment + controls)
+
+### Opening File and gathering information.
+
+```{r}
+platelets <- read.csv("../data/08_platelets.csv")
+
+platelets
+```
+
+### Extracting values for making easier creating the lists.
+
+```{r}
+unique(platelets$patient)
+
+```
+
+```{r}
+unique(platelets$variety)
+```
+
+```{r}
+platelets$platelet_count[platelets$variety == "Vitality"] # Change variety name to have values for that specific variety.
+```
+
+## Calculating manually the Analysis of Variance
+
+```{r}
+Vitality <- c(88.1,  74.4,  26.7,  22.0, -32.3,  63.5,  52.0,  80.3,  70.3,  75.3,  50.1,  63.1,  38.9, 128.0, 143.8, 126.1,  45.4,  94.4, 58.6,  88.6,  88.5, -49.7,  -0.4, -37.2)
+Booster <- c(81.6 , 11.6 , 31.2 , 95.5 , 56.1,  93.4,  60.1, 124.8,  49.0, 166.3, -16.7,  52.1, 107.8, 103.8,  17.6, 106.0, -13.8,  16.7, 43.5 ,-53.7,  55.5,  96.1 , 24.5  ,45.7)
+Protect <- c(153.3,  87.3,  91.8,  65.8,  84.5,  89.8,  92.1,  68.9,  92.4, 145.2, 108.3,  78.6,  98.8,  59.5,  45.3, 173.7, 151.6,  73.0,109.3, 102.7,  11.1,  70.1 ,114.7, 156.2)
+none <- c(101.5, 147.3,  39.3,  79.1,  75.0, 192.5, 154.7, 176.6,  83.4, 225.6,  44.7, 121.7,   7.2,  24.7, 124.3,  25.1,  54.6,  46.6,17.8,  85.8, 133.5, 110.7, 170.6, 132.8)
+
+scores <- c(Vitality, Booster, Protect, none)
+
+#FIrst step is to calcuulate the mean
+
+meanV <- mean(Vitality)
+meanB <- mean(Booster)
+meanP <- mean(Protect)
+meanN <- mean(none)
+mean_all <- mean(scores)
+
+mean_all
+
+# Second step is to calculate the sum of sqares
+
+ssV <- (meanV - mean_all) ^2 * length(Vitality)
+ssB <- (meanB - mean_all) ^2 * length(Booster)
+ssP <- (meanP - mean_all) ^2 * length(Protect)
+ssN <- (meanN - mean_all) ^2 * length(none)
+ssall <- ssV + ssB + ssP + ssN
+
+ssall
+# Third step is to calculate the errors
+
+errorV <- sum((Vitality - meanV)^2)
+errorB <- sum((Booster- meanB)^2)
+errorP <- sum((Protect- meanP)^2)
+errorN <- sum((none- meanN)^2)
+error <- errorV + errorB + errorP + errorN
+
+error
+
+dof_treatments <- 3 
+dof_error <- 92
+
+ms_trt <- ssall / dof_treatments 
+ms_error <- error / dof_error 
+
+F <- ms_trt / ms_error
+
+F
+```
+
+## P-value
+
+```{r}
+Fstats2 <- 5.405009
+
+# P-value
+
+pf(Fstats2, df1 = 3, df2 = 92, lower.tail = FALSE)
+
+```
+
+
+## Calculating using AOV
+
+```{r}
+model <- aov(platelet_count ~ variety , data = platelets) # platelets is explained by the column treatment and the data is platelets
+
+summary(model)
+```
+
+Results are the same for both calculations, meaning that I did the calculations right.
