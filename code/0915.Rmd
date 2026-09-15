@@ -1,0 +1,93 @@
+---
+title: "0915"
+author: "Matheus Ardigueri"
+date: "2026-09-15"
+output: html_document
+---
+
+```{r}
+blueberries <- read.csv("../data/09_blueberries.csv")
+```
+
+```{r}
+blueberries
+```
+
+```{r}
+unique(blueberries$variety)
+
+```
+```{r}
+model <- aov(resistance ~ variety , data = blueberries) # platelets is explained by the column treatment and the data is platelets
+
+summary(model)
+```
+
+```{r}
+df <- data.frame(plot = c(1,2,3),
+                 variety = c("Able","Best","Colt"),
+                 score = c(5.7,6.2,4.1))
+
+df
+```
+```{r}
+
+anovadf <- aov(score ~ variety, data = df)
+summary(anovadf)
+
+```
+# MAking a CRD
+
+```{r}
+set.seed(1)
+
+trt <- c("A","B","C")
+
+reps <- rep(trt, each = 3) # Times or each.
+
+exp <- sample(reps, replace = FALSE)
+
+exp
+```
+```{r}
+install.packages("agricolae")
+library(agricolae)
+```
+
+```{r}
+mydesign <- design.crd(trt = trt,
+                       r = 5)
+
+mydesign
+```
+
+```{r}
+maize <- read.csv("../data/09_maize.csv")
+
+maizemodel <- aov(yield ~ variety, data = maize)
+summary(maizemodel)
+```
+```{r}
+TukeyHSD(maizemodel)
+```
+```{r}
+agric <- HSD.test(maizemodel, trt = "variety")
+agric
+
+```
+```{r}
+berries <- read.csv("../data/09_blueberries.csv")
+
+berries
+
+model <- aov(resistance ~ variety, data = berries)
+
+TukeyHSD(model)
+
+```
+```{r}
+tukag <- HSD.test(model, trt = "variety")
+tukag
+
+```
+
