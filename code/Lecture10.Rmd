@@ -1,0 +1,128 @@
+---
+title: "Lecture 10"
+output: html_document
+date: "2026-09-19"
+---
+
+<!-- Review 1 exercise Set your random seed to 123 and make a CRD in R with the following parameters: -->
+
+<!-- 8 treatments (“A” through “H”) -->
+
+<!-- 5 replicates of each treatment -->
+
+<!-- Save your design to a data frame -->
+
+<!-- Add a column “taste” and fill it with random values from a uniform distribution between 0 and 5 -->
+
+```{r Seed to 123, CRD with 5 reps of treatments A-H}
+
+install.packages("agricolae")
+
+library(agricolae)
+
+set.seed(123)
+treatments <- LETTERS[1:8]
+
+mydesign <- design.crd(trt = treatments, r = 5)
+mydesign$book
+
+
+# Other way
+myreps <- rep(treatments, 5)
+crd2 <- sample(myreps, replace = FALSE)
+
+# Make taste column and fill with uniform distribution values 0-5
+
+myframe <- mydesign$book
+myframe$taste <- runif(n = nrow(myframe), min = 0, max = 5)
+myframe
+
+```
+
+# Anova power to estimate differences - Our power to estimate differences in means realies on how well we can control the noise in our analysis.
+
+# The power in ANOVA largely depends on your error term. The most power out anova we add more reps (Increase DOF), and decrease errors (Be more precisa, use calibrated instruments, or choose better experimentation designs)
+
+# Randomized complete block design (RCBD) - The most common simple design
+
+# Blocks, with complete set of all treatments, and treatments inside blocks are randomized.
+
+# By grouping blocks we reduce error, gaining power in anova, but we lose one DOF per block.
+
+![](images/clipboard-1138144302.png)
+
+![](images/clipboard-2309093141.png)
+
+# RCBD is almos aways the better choice.
+
+## Creating:
+# Determine your treatments - make your replicates - randomize within blocks
+
+```{r}
+treats <- LETTERS[1:5]
+n_reps <- 4
+
+# The long way
+rep1 = sample(treats, replace = FALSE)
+rep2 = sample(treats, replace = FALSE)
+rep3 = sample(treats, replace = FALSE)
+rep4 = sample(treats, replace = FALSE)
+
+all = c(rep1, rep2, rep3, rep4)
+all
+
+
+# With agricolae
+library(agricolae)
+
+rcbd = design.rcbd(
+  trt = treats,
+  r = n_reps
+)
+
+rcbd$book
+```
+```{r}
+library(dplyr)
+
+data(iris)
+
+iris
+
+```
+```{r}
+# filter function
+
+filter(iris, Sepal.Length  >=5)
+
+
+```
+```{r}
+# Select function
+
+select(iris, Petal.Length, Species)
+```
+```{r}
+# Mutate - Adjust a data frame
+
+mutate(iris, Petal.Area = Petal.Length * Petal.Width,
+       index = 5, scorer = "Jenny")
+```
+```{r}
+# Summary
+
+summarize(iris, avg_petal_length = mean(Petal.Length),
+        max_sepal_width = max(Sepal.Width))
+
+```
+```{r}
+# Group-by (group inside your data)
+
+iris_group <- group_by(iris, Species)
+summarize(iris_group, avg_petal_length = mean(Petal.Length),
+        max_sepal_width = max(Sepal.Width))
+```
+```{r}
+
+```
+
