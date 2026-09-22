@@ -56,6 +56,7 @@ myframe
 # RCBD is almos aways the better choice.
 
 ## Creating:
+
 # Determine your treatments - make your replicates - randomize within blocks
 
 ```{r}
@@ -82,6 +83,7 @@ rcbd = design.rcbd(
 
 rcbd$book
 ```
+
 ```{r}
 library(dplyr)
 
@@ -90,6 +92,7 @@ data(iris)
 iris
 
 ```
+
 ```{r}
 # filter function
 
@@ -97,17 +100,20 @@ filter(iris, Sepal.Length  >=5)
 
 
 ```
+
 ```{r}
 # Select function
 
 select(iris, Petal.Length, Species)
 ```
+
 ```{r}
 # Mutate - Adjust a data frame
 
 mutate(iris, Petal.Area = Petal.Length * Petal.Width,
        index = 5, scorer = "Jenny")
 ```
+
 ```{r}
 # Summary
 
@@ -115,6 +121,7 @@ summarize(iris, avg_petal_length = mean(Petal.Length),
         max_sepal_width = max(Sepal.Width))
 
 ```
+
 ```{r}
 # Group-by (group inside your data)
 
@@ -122,7 +129,112 @@ iris_group <- group_by(iris, Species)
 summarize(iris_group, avg_petal_length = mean(Petal.Length),
         max_sepal_width = max(Sepal.Width))
 ```
+
 ```{r}
 
 ```
 
+# Two way ANOVA
+
+```{r}
+mydata <- data.frame(plots = 1:6, 
+                     blocks = rep(1:3, each=2),
+                                  trt= c("A","B","B","A","A","B"),
+                                         yield = c(4.5,6.2,8.9,7.7,5.6,6.5))
+mydata
+
+
+# The means
+
+mean_trt <- mydata %>%
+  group_by(trt) %>%
+  summarize(mean_trt = mean(yield))
+
+mean_trt
+
+```
+
+```{r}
+mean_block <- mydata %>%
+  group_by(blocks) %>%
+  summarize(mean_block = mean(yield))
+mean_block
+
+```
+
+```{r}
+mean_grand = mean(mydata$yield)
+mean_grand
+```
+
+```{r}
+f_block <- 58.18
+f_trt <- 29.47
+pf(f_block, df1 = 2, df2 = 2, lower.tail = FALSE)
+
+pf(f_trt, df1 = 1, df2 = 2, lower.tail = FALSE)
+```
+
+```{r}
+two_way <- read.csv("../data/11_two-way.csv")
+two_way
+
+```
+
+```{r}
+model_ <- aov(yield ~ block + variety, data = two_way)
+
+summary(model_)
+```
+
+```{r}
+aov(yield ~ variety, data = two_way) %>%
+  summary()
+```
+
+# We got more degrees of freedom for error, but we got more error (lost error control), which is a trade-off for the ANOVA to lose power.
+
+# If blocks are not significant, we can just drop them.
+
+```{r}
+library(agricolae)
+
+agricol <- HSD.test(model_, trt = "variety")
+agricol
+```
+
+```{r}
+agric <- HSD.test(model_, trt = "block")
+agric
+```
+
+```{r}
+
+# Ploting data with boxplot common function.
+
+boxplot(data = two_way, yield ~ variety )
+
+```
+
+```{r}
+# For this RCBD:
+# - 6 varieties → treatment degrees of freedom = \(6-1=5\)
+# - 5 reps/blocks → block degrees of freedom = \(5-1=4\)
+# - Error degrees of freedom = \((6-1)(5-1)=20\)
+
+# Finding the F-value.
+
+qf(0.98, df1 = 5, df2 = 20) #p-value, df treatment, df error (blocks * treatment)
+```
+
+```{r}
+maiza <- read.csv("../data/11_maize.csv")
+maiza
+
+```
+
+```{r}
+new_df <- maiza[maiza$block == "block1",] 
+```
+
+![](images/clipboard-3420906570.png)
