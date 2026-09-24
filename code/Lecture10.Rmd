@@ -238,3 +238,57 @@ new_df <- maiza[maiza$block == "block1",]
 ```
 
 ![](images/clipboard-3420906570.png)
+
+## Factorial
+
+The idea of factorial designs is to do more with less.
+
+Designs where you're testing more than one important factor at once.
+
+It's a superset of designs.
+
+![](images/clipboard-3427023495.png)
+
+![](images/clipboard-1034172836.png)
+
+We get more DOF of error, and also more reps of individual treatments.
+
+### Two main types.
+
+#### Full factorial designs.
+
+Use every possible combination of factors
+
+-   The treatment is the combination of values, not the individual factors themselves.
+
+    ![](images/clipboard-371680413.png)
+
+![](images/clipboard-1267081464.png)
+
+No interaction = Combination will result into the sum of positives only.
+
+Interaction = Combination will increase more than the only the sum. Also works if the values decrease.
+
+#### Fractional factorial designs
+
+Only a subset of possible combinations
+
+```{r}
+cotton <- read.csv("../data/12_cotton.csv")
+
+cotton
+```
+
+```{r}
+
+cotton$fert <- as.factor(cotton$fert)
+cotton$cover <- as.factor(cotton$cover)
+
+cottonM <- aov(yield ~ fert * cover, data = cotton)
+
+summary(cottonM)
+```
+
+![](images/clipboard-4015458580.png)
+
+Limits on factorial design, the biggest limits on factorial designs are practical. The number of interactions increases exponentially with the number of facotrs.
