@@ -1,0 +1,172 @@
+---
+title: "Midterm 1"
+author: "Matheus Ardigueri"
+date: "2026-09-26"
+output: html_document
+---
+
+# Exam Midterm CRSS 8010
+
+# Question 1
+
+```{r}
+test.plot <- c("a","b")
+_mydata <- c(1,2,3)
+4varieties <- c(1,2,2)
+.pseudoscore <- c(3,1,1)
+Maize_42 <- c(1,1,1)
+x <- c(1,1,1)
+```
+
+# Question 3
+
+```{r}
+j <- 1:20
+k <- j
+
+plot(j, k, type = "s")
+```
+
+
+# Question 4
+
+```{r}
+qf(0.01, df1 = 5, df2 = 30, lower.tail = FALSE)
+```
+# Question 7
+
+```{r}
+dof_treatments <- 3
+dof_res <- 12
+ssVar <- 21.47
+ssRes <- 54.32
+
+ms_trt <- ssVar / dof_treatments
+ms_trt
+
+ms_res <- ssRes / dof_res
+ms_res
+
+f_val <- ms_trt/ms_res
+f_val
+
+p_val <- pf( f_val, df1 = dof_treatments, df2 = dof_res, lower.tail = FALSE ) #df1 treatments, df2 residuals
+p_val
+
+
+```
+
+```{r}
+potato <- read.csv("../data/midterm1_potatoes.csv")
+
+potato
+```
+
+
+
+
+# Question 18
+
+```{r}
+mean_grand_potatoes <- mean(potato$yield)
+
+mean_sg <- mean(potato$yield[potato$variety == "Sugargate"])
+
+ssq <- (mean_sg - mean_grand_potatoes) ^2 * 8 
+
+ssq
+
+```
+# Question 19
+
+```{r}
+unique(potato$variety)
+```
+```{r}
+model_potato <- aov(yield ~ variety + block, data = potato)
+
+summary(model_potato)
+```
+
+```{r}
+library(agricolae)
+
+agricol <- HSD.test(model_potato, trt = "variety")
+agricol
+```
+
+
+
+
+
+
+
+
+```{r}
+```{r Another anova}
+
+Fortune <- c(42, 47)
+Bugz <- c(65, 62)
+Eliminator <- c(48, 44)
+
+scores <- c(Fortune, Bugz, Eliminator)
+
+#FIrst step is to calcuulate the mean
+
+meanF <- mean(Fortune)
+meanB <- mean(Bugz)
+meanE <- mean(Eliminator)
+mean_all <- mean(scores)
+
+# Second step is to calculate the sum of sqares
+
+ssF <- (meanF - mean_all) ^2 * length(Fortune)
+ssB <- (meanB - mean_all) ^2 * length(Bugz)
+ssE <- (meanE - mean_all) ^2 * length(Eliminator)
+ssall <- ssF + ssB + ssE
+
+# Third step is to calculate the errors
+
+errorF <- sum((Fortune - meanF)^2)
+errorB <- sum((Bugz- meanB)^2)
+errorE <- sum((Eliminator- meanE)^2)
+error <- errorF + errorB + errorE
+
+dof_treatments <- 2 
+dof_error <- 3
+
+ms_trt <- ssall / dof_treatments 
+ms_error <- error / dof_error 
+
+F <- ms_trt / ms_error
+
+F
+
+
+```
+
+
+
+
+```{r}
+
+# Oppening dataset
+
+rcbd_mid <- read.csv("../data/Midterm1_rcbd.csv")
+head(rcbd_mid, 5)
+
+```
+```{r}
+
+# Sampling randomly inside Variety column
+
+library(dplyr)
+
+rcbd_new <- rcbd_mid %>%
+  group_by(Block) %>%
+  mutate(variety_new = sample(Variety))
+
+
+rcbd_new
+```
+
