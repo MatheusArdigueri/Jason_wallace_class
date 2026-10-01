@@ -1,0 +1,84 @@
+---
+title: "Untitled"
+author: "Matheus Ardigueri"
+date: "2026-10-01"
+output: html_document
+---
+
+```{r}
+
+bananas <- read.csv("./data/13_bananas.csv")
+
+bananas
+
+# Table function to see how many times each variety and fungicides will show.
+table(bananas$variety)
+table(bananas$fungicide)
+
+
+
+```
+
+```{r}
+banana_mod <-  aov(resistance ~ block + variety * fungicide, data = bananas)
+summary(banana_mod)
+
+```
+```{r}
+library(agricolae)
+
+tuk <- HSD.test(banana_mod, trt = "variety")
+tuk
+```
+
+```{r}
+# Ploting interactions easily.
+
+cotton <- read.csv("./data/12_cotton.csv")
+
+
+interaction.plot(x.factor = cotton$fert,
+                 trace.factor = cotton$cover,
+                  response = cotton$yield
+                  )
+
+```
+
+```{r}
+strawberries <- read.csv("./data/13_strawberries.csv")
+strawberries
+
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(data = strawberries, aes(
+  x = color, 
+  y = flavor,
+  color = variety
+)) +
+  geom_jitter()
+
+
+```
+
+```{r}
+wema5 <- read.table("./data/13_wema5.txt",header = TRUE)
+wema5
+
+```
+
+```{r}
+ggplot(data =wema5,
+       aes(x = Entry, 
+           y = PlantHeightCm)) +
+  geom_jitter()
+```
+```{r}
+ggplot(data = wema5,
+       aes(x = PlantHeightCm)) +
+  geom_histogram()
+
+```
+
