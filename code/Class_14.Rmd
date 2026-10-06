@@ -1,0 +1,153 @@
+---
+title: "Untitled"
+author: "Matheus Ardigueri"
+date: "2026-10-06"
+output: html_document
+---
+
+# Remembering exercises
+
+```{r}
+muscadines <- read.csv("./data/14_muscadines.csv")
+muscadines
+
+```
+
+```{r}
+library(ggplot2)
+
+quality_control <- ggplot(data = muscadines, aes(
+  x = block,
+  y = yield,
+  color = variety
+)) +
+  geom_jitter() +
+  theme_bw()
+
+quality_control
+
+```
+
+```{r}
+quality_control2 <- ggplot(data = muscadines, aes(
+  x = yield,
+)) +
+  geom_histogram() +
+  facet_grid(~variety) +
+  theme_bw()
+
+quality_control2
+```
+```{r}
+model <- aov(data = muscadines, yield ~ variety + block)
+
+summary(model)
+```
+```{r}
+hist(residuals(model), breaks = 20)
+
+```
+```{r}
+plot(residuals(model), pch = 20, cex = 1.5)
+```
+
+```{r}
+library(dplyr)
+
+cleaned = muscadines %>%
+  mutate(residuals = residuals(model))
+
+cleaned
+
+cleaned_keep <- cleaned %>%
+  filter(residuals <= 5 | yield <= 12)
+
+cleaned_keep
+```
+
+```{r}
+hist(cleaned_keep$yield)
+
+```
+```{r}
+plot(cleaned_keep$yield, pch = 20, cex = 1.5)
+
+```
+
+```{r}
+model_clean <- aov(data = cleaned_keep, yield ~ variety + block)
+
+summary(model_clean)
+```
+```{r}
+hist(residuals(model_clean))
+plot(residuals(model_clean), pch = 20, cex = 1.5)
+
+```
+
+```{r}
+organic <- read.csv("./data/14_organic.csv")
+organic
+```
+
+```{r}
+model_organic <- aov(data = organic, organicmatter ~ biochar * compost)
+summary(model_organic)
+```
+```{r}
+interaction.plot(x.factor = organic$biochar,
+                 trace.factor = organic$compost,
+                  response = organic$organicmatter
+                  )
+```
+
+# Linear regression
+
+Shortcomes of anova
+- Complex designs and missing data can make anova difficult.
+- Didide data into groups and see which groups explain the variation
+- Categorical variables
+- Simple designs
+- Requires normality
+
+
+
+Linear regression - estimate the effect of different variables and check if they are different than 0, basically explain how well one or more variables can explain the data.
+- Continuoues and categorical variables
+- Pretty much any design
+- Extended to any distribution of residuals
+
+GOAL: Find the line that best summarizes a lot of data with minimal error.
+
+
+```{r}
+bn <- data.frame(
+  plot = c(1,2,3,4),
+biomass = c(17.6, 14.3 , 18.9, 12.6),
+nitrogen = c(10,5,10,5)
+  
+  )
+
+mymodel <- lm(biomass ~ nitrogen, data = bn)
+summary(mymodel)
+```
+
+```{r}
+mymodel2 <- aov(biomass ~ nitrogen, data = bn)
+summary(mymodel2)
+```
+```{r}
+yield <- read.csv("../data/14_yield.csv")
+yield
+```
+
+```{r}
+model_yield <- lm(yield ~ n + p + block, data = yield)
+summary(model_yield)
+anova(model_yield)
+```
+
+```{r}
+
+```
+
