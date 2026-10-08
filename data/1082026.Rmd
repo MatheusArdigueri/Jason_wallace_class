@@ -1,0 +1,51 @@
+---
+title: '10082026'
+output: html_document
+date: "2026-10-08"
+---
+
+```{r}
+asteroids <- read.csv("./data/15_asteroids.csv")
+asteroids
+
+```
+
+Which kind of design is this ? RCBD
+
+
+```{r}
+# p-value for algorithms
+
+ast_mod <- aov(tracks ~ timeslot + algorithm, data = asteroids)
+summary(ast_mod)
+
+```
+
+```{r}
+library(agricolae)
+
+HSD.test(ast_mod, trt = asteroids$algorithm)
+
+```
+```{r}
+ast_mod2 <- lm(tracks ~ timeslot + algorithm, data = asteroids)
+summary(ast_mod2)
+```
+
+
+```{r}
+coef(ast_mod)
+```
+
+```{r}
+plot(ast_mod)
+```
+
+```{r}
+install.packages("gvlma")
+library(gvlma)
+
+gvlma(ast_mod)
+
+```
+
