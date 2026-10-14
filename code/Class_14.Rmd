@@ -113,6 +113,10 @@ Shortcomes of anova
 
 
 Linear regression - estimate the effect of different variables and check if they are different than 0, basically explain how well one or more variables can explain the data.
+- Residuals needs to be normal
+- Variance is equal (Homoscedasticity)
+- No multicorinearity
+- Residuals are uncorrelated
 - Continuoues and categorical variables
 - Pretty much any design
 - Extended to any distribution of residuals

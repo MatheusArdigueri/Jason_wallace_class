@@ -1,0 +1,185 @@
+---
+title: '101326'
+author: "Matheus Ardigueri"
+date: "2026-10-13"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+------------------------------------------------------------------------
+
+# Linear regression assumptions and differences from ANOVA
+
+## Linear regression
+
+###Shortcomes of anova - Complex designs and missing data can make anova
+difficult. - Didide data into groups and see which groups explain the
+variation - Categorical variables - Simple designs - Requires normality
+
+------------------------------------------------------------------------
+
+###Linear regression - estimate the effect of different variables and
+check if they are different than 0, basically explain how well one or
+more variables can explain the data. - Residuals needs to be normal -
+Variance is equal (Homoscedasticity) - No multicorinearity - Residuals
+are uncorrelated - Continuoues and categorical variables - Pretty much
+any design - Extended to any distribution of residuals
+
+GOAL: Find the line that best summarizes a lot of data with minimal
+error.
+
+## Loading data.
+
+```{r}
+sunflower <- read.csv("./data/16_sunflower.csv")
+
+sunflower
+```
+
+## Checking outliers on raw data.
+
+```{r}
+hist(sunflower$oil)
+plot(sunflower$oil, pch = 20, cex = 1.5)
+```
+
+## Creating Linear Regression Model
+
+```{r}
+model <- lm(data = sunflower, oil ~ variety)
+summary(model)
+```
+
+## Checking residuals.
+
+```{r}
+hist(residuals(model))
+plot(residuals(model), pch = 20, cex = 1.5)
+```
+
+After checking residuals, we can see shotgun effect, and also they
+appear to be in a normal distribution.
+
+## GVLMA, very useful
+
+```{r}
+install.packages("gvlma")
+library(gvlma)
+```
+
+```{r}
+gvlma(model)
+```
+
+```{r}
+plot(gvlma(model), onepage = FALSE)
+```
+
+```{r}
+plot(model)
+```
+
+## Other graphs to check
+
+```{r}
+library(performance)
+```
+
+------------------------------------------------------------------------
+
+# Balanced vs Unbalanced data.
+
+# Filtering Outliers
+
+```{r}
+sunflower2 <- read.csv("./data/16_sunflower.csv")
+model2 <- lm(data = sunflower2, oil ~ variety)
+sunflower2$resid <- residuals(model2)
+
+sunflower2$oil_filt <- sunflower2$oil
+sunflower2$oil_filt[sunflower2$resid>4] = NA
+
+sunflower2
+```
+
+In balanced data, order of data in anova and in models doesn't matter, in unbalanced data it does matter.
+
+Sums-of-squares
+
+The total of SS doesn't changes, but whichones goes first in the model gets more SS on the model. (If oil ~ block + variety) <- block will get more.
+
+Linear regression is greedy (it does as much it's possible as faster it's possible)
+
+
+# Showing off balanced data
+
+```{r}
+balanced <- read.csv("./data/16_balanced.csv")
+balanced
+
+```
+
+```{r}
+model1b <- aov(data = balanced, yield ~ variety + block)
+summary(model1b)
+model2b <- aov(data = balanced, yield ~  block + variety)
+summary(model2b)
+```
+Removing to make it unbalanced <- still balanced
+
+```{r}
+balanced$yield[balanced$variety == "A51"] = NA
+
+balanced
+
+```
+```{r}
+model3b <- aov(data = balanced, yield ~ variety + block)
+summary(model3b)
+model4b <- aov(data = balanced, yield ~  block + variety)
+summary(model4b)
+```
+Remove to be unbalanced <- not equal
+
+```{r}
+balanced$yield[balanced$variety == "C11" & balanced$block == "block4"] = NA
+
+model5b <- aov(data = balanced, yield ~ variety + block)
+summary(model5b)
+model6b <- aov(data = balanced, yield ~  block + variety)
+summary(model6b)
+
+```
+Even though changed only a little, it's reasonable to say that with more complex models we will have more problems with this variation.
+
+The general rule is:
+- Blocks first,
+- Treatments later.
+
+On type 1 SS, you are looking into only one value of the treatments.
+
+On type 2 SS, basically the model is fit multiple times, each time with a different effect in last place, however, higher-order interactions are ignores, and this can be dangerous if interactions are significant.
+
+On type 3, the idea is simillar to type 2, however it is accounting for all other main effects and interactions.
+
+
+```{r}
+model3b <- aov(data = balanced, yield ~ variety + block)
+model4b <- aov(data = balanced, yield ~  block + variety)
+
+
+anova(model1b)
+anova(model2b)
+
+library(car)
+Anova(model1b, type = 2)
+Anova(model2b, type = 2)
+```
+
+
+
+
+
+
