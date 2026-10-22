@@ -41,18 +41,22 @@ All factors are significant, blocks, density, depth and the interaction between 
 
 ```{r}
 
-interaction.plot(x.factor = malting$density,
+interaction1 <- interaction.plot(x.factor = malting$density,
                  trace.factor = malting$depth,
                   response = malting$malt_quality
                   )
 
+interaction1
+
 ```
 
-```{r}
-interaction.plot(x.factor = malting$depth,
+```{r message=FALSE, warning=FALSE}
+interaction2 <- interaction.plot(x.factor = malting$depth,
                  trace.factor = malting$density,
                   response = malting$malt_quality
                   )
+
+interaction2
 ```
 
 # Question 2
@@ -147,7 +151,6 @@ tukey_beans_inoculant
 ```
 
 Better are genotypes PZ076, Abel21 with no significant difference for M91 but with different value. For inoculants Supergrow is the best onw with no significant difference for NitroTastic that shares same group. I'm assuming this classification is "The lower the better"
-
 
 # Exercise 5
 

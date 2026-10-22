@@ -1,0 +1,44 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r Review Video 17}
+library(car)
+
+options(contrasts = c("contr.sum","contr.poly"))
+
+covid <- read.csv()
+
+model <- lm(infections ~ block + masks + vaccine, data = covid)
+Anova(model, type 3)
+
+library(agricolae)
+
+t1 <- HSD.test(model, trt="mask")
+t1$groups
+
+t2 <- HSD.test(model, trt="vaccine")
+t2$groups
+
+
+
+```
+
+Sometimes Randomization meses up, and even though the designs at right are random, they don't do a good job of controlling spatial variation.
+
+Sometimes to control the error or simplify the experiment, it's fine to sacrifice some randomization. (Restricted randomization)
+
+Ex: Greenhouse treatments - Testing biological seed treatments on maize. - Always pair a treated and an untreated pot. \# We may have one problem with + and - variables, so we can fix one parameter to vary other one.
+
+Ex: Drought tolerance - It's hard to vary irrigation, so we change the hardest parameter.
+
+![](images/clipboard-2199617051.png)
+
+![](images/clipboard-2387109620.png)
+
+![](images/clipboard-646998842.png)
+
+![](images/clipboard-1166587364.png)
+
+![](images/clipboard-264767706.png)
