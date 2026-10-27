@@ -1,0 +1,52 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Review 
+
+3 years of data of oat yield in a split-plot design.
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(lmerTest)
+
+oat1 <- read.csv("../code/20_repeat_splitplot.y1.csv")
+
+oat2 <- read.csv("../data/20_repeat_splitplot.y2.csv")
+
+oat3 <- read.csv("../data/20_repeat_splitplot.y3.csv")
+
+# infiles = list.files(path="data", pattern = "20_repeat", full.names = TRUE)
+#lapply(infiles,read.csv)
+# Combine into a single dataframe using # dplyr::bind_rows(aots1,oats2,oats3)
+
+bind_rows(oat1,oat2,oat3)
+
+
+```
+
+```{r}
+
+mymodel = lmer(yield ~ variety * spacing + (1|subplot) + (1|wholeplot) + (1|year), data = rep_splitplot) 
+
+# Subplot, wholeplot, and year must be random effects because they induce correlation into our data.
+
+summary(mymodel)
+
+```
+
+```{r}
+
+maedow <- read.csv("../data/20_meadowfoam.csv")
+maedow
+
+```
+
+```{r}
+model_maedow <- lmer(TSW ~ (1|Entry) + (1|Block), data = maedow)
+ranova(model_maedow)
+
+```
+
