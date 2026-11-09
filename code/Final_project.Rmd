@@ -1,0 +1,65 @@
+---
+title: "Untitled"
+author: "Matheus Ardigueri"
+date: "2026-11-09"
+output: html_document
+---
+
+```{r}
+library(dplyr)
+library(readxl)
+library(agricolae)
+library(lme4)
+library(lmerTest)
+library(emmeans)
+library(janitor)
+library(gvlma)
+library(performance)
+```
+
+```{r}
+ponder <- read_excel("./data/Ponder_general_yield_data.xlsx") %>%
+  clean_names() %>%
+  filter(year == 2025) %>%
+  select(plot, water, cultivar, rep, pod_yield_kg_ha, yield_7_percent_moisture_kg_ha)
+
+ponder
+```
+
+```{r}
+
+mymodel1 <- lmer(data = ponder, pod_yield_kg_ha ~ water * cultivar + (1|rep))
+
+anova(mymodel1)
+
+```
+```{r}
+# Residuals vs fitted values
+plot(
+  fitted(mymodel1),
+  residuals(mymodel1),
+  xlab = "Fitted Values",
+  ylab = "Residuals",
+  main = "Residuals vs Fitted"
+)
+
+abline(h = 0, col = "red", lty = 2)
+
+# Normal Q-Q plot
+qqnorm(
+  residuals(mymodel1),
+  main = "Normal Q-Q Plot"
+)
+
+qqline(
+  residuals(mymodel1),
+  col = "red"
+)
+
+# Shapiro-Wilk normality test
+shapiro.test(residuals(mymodel1))
+
+# Heteroscedasticity assessment
+performance::check_heteroscedasticity(mymodel1)
+```
+
