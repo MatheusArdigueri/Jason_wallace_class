@@ -18,13 +18,37 @@ library(performance)
 ```
 
 ```{r}
-ponder <- read_excel("./data/Ponder_general_yield_data.xlsx") %>%
+ponder <- read_excel("../data/Ponder_general_yield_data.xlsx") %>%
   clean_names() %>%
   filter(year == 2025) %>%
   select(plot, water, cultivar, rep, pod_yield_kg_ha, yield_7_percent_moisture_kg_ha)
 
 ponder
 ```
+
+# Check if we need to transform data.
+
+```{r}
+
+hist(ponder$yield_7_percent_moisture_kg_ha, breaks = 20)
+
+# Data does not look normal distributed.
+
+shapiro.test(ponder$yield_7_percent_moisture_kg_ha)
+
+# However, shapiro looks normal.
+
+```
+
+# We can still transform.
+
+```{r}
+
+```
+
+
+
+
 
 ```{r}
 
@@ -62,4 +86,3 @@ shapiro.test(residuals(mymodel1))
 # Heteroscedasticity assessment
 performance::check_heteroscedasticity(mymodel1)
 ```
-
