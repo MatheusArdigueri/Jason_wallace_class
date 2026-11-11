@@ -5,34 +5,136 @@ date: "2026-11-09"
 output: html_document
 ---
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(dplyr)
 library(readxl)
 library(agricolae)
 library(lme4)
 library(lmerTest)
 library(emmeans)
+library(ggplot2)
 library(janitor)
 library(gvlma)
 library(performance)
+library(tidyverse) # for data wrangling and plotting
+library(janitor) # clean column names
+library(lmerTest) # for mixed-effect modeling
+library(broom.mixed) # for residual diagnostics
+library(knitr) # for figure displaying
+library(nlme) # for non-linear modeling
+library(car)
+library(nlraa) # for starting value functions
+library(metrica)
 ```
 
 ```{r}
-ponder <- read_excel("../data/Ponder_general_yield_data.xlsx") %>%
+ponder <- read_excel("../data/Ponder_general_yield_data.xlsx")
+
+ponder <- ponder %>%
   clean_names() %>%
+  select(year, plot, rep, water, cultivar, yield_7_percent_moisture_kg_ha) %>%
   filter(year == 2025) %>%
-  select(plot, water, cultivar, rep, pod_yield_kg_ha, yield_7_percent_moisture_kg_ha)
+  filter(yield_7_percent_moisture_kg_ha < 9000 & yield_7_percent_moisture_kg_ha > 4000)
+
 
 ponder
 ```
 
-# Check if we need to transform data.
+```{r}
+scatter <- ggplot(ponder, aes(
+  x = seq_along(yield_7_percent_moisture_kg_ha),
+  y = yield_7_percent_moisture_kg_ha
+)) +
+  geom_point(shape = 20, size = 4) +
+  labs(
+    x = "Observation",
+    y = "Yield",
+    title = "Yield Scatterplot Distribution"
+  ) +
+  theme_classic()+
+  theme(
+    title = element_text(size = 20),
+    axis.title.y = element_text(size = 20),
+    axis.text.y = element_text(size = 20),
+    axis.title.x = element_text(size = 20),
+    axis.text.x = element_text(size = 20)
+  )
+
+ggsave(plot = scatter, "../output/scatter_finalproj.jpg",
+       height = 8,
+       width = 10,
+       dpi = 600)
+
+scatter
+```
+
+
+
+# Histogram data distribution.
 
 ```{r}
+ hist <- ggplot(data = ponder,
+                aes(x = yield_7_percent_moisture_kg_ha)) +
+  geom_histogram(bins = 25, colour = "grey") +
+  theme_light() +
+  labs(
+    title = "Yield Histogram Distribution",
+    x = "Yield (kg/ha)",
+    y = "Frequency"
+  ) +
+  theme(
+    title = element_text(size = 20),
+    axis.title.y = element_text(size = 20),
+    axis.text.y = element_text(size = 20),
+    axis.title.x = element_text(size = 20),
+    axis.text.x = element_text(size = 20)
+  )
 
-hist(ponder$yield_7_percent_moisture_kg_ha, breaks = 20)
+# ggsave(plot = hist, "../output/histogram_finalproj.jpg", 
+#        height = 8,
+#        width = 10,
+#        dpi = 600)
 
-# Data does not look normal distributed.
+hist
+```
+
+# Boxlot for data distribution.
+
+```{r}
+boxplot <- ggplot(data = ponder,
+                  aes(x = water,
+                      y = yield_7_percent_moisture_kg_ha,
+                      fill = cultivar)) +
+  geom_boxplot() +
+  theme_light() +
+  labs(
+    x = "Irrigation Treatments",
+    y = "Yield (kg/ha)",
+    fill = "Genotype"
+  ) +
+  theme(
+    legend.title = element_text(size = 20),
+    legend.text = element_text(size = 18),
+    axis.title.x = element_text(size = 20), 
+    axis.title.y = element_text(size = 20),
+    axis.text.x = element_text(size = 20),
+    axis.text.y = element_text(size = 20),
+    legend.position = c(0.1,0.8)
+  )
+  
+
+boxplot
+
+ggsave(plot = boxplot, "../output/boxplot_yield_distribution.jpg", 
+      height = 8,
+      width = 15,
+      dpi = 600)
+
+```
+
+# Shapiro wilk test to confirm data normality.
+
+```{r}
 
 shapiro.test(ponder$yield_7_percent_moisture_kg_ha)
 
@@ -40,12 +142,151 @@ shapiro.test(ponder$yield_7_percent_moisture_kg_ha)
 
 ```
 
+```{r}
+# Estimated marginal means
+emm_cultivar <- emmeans(mymodel_transformed, ~ cultivar)
+
+# Tukey pairwise comparisons
+pairs(emm_cultivar, adjust = "tukey")
+
+# Group genotypes using letters
+cultivar_letters <- multcomp::cld(
+  emm_cultivar,
+  Letters = letters,
+  adjust = "tukey"
+)
+
+cultivar_letters
+```
+```{r}
+# Estimated marginal means
+emm_cultivar <- emmeans(mymodel_transformed, ~ water)
+
+# Tukey pairwise comparisons
+pairs(emm_cultivar, adjust = "tukey")
+
+# Group genotypes using letters
+cultivar_letters <- multcomp::cld(
+  emm_cultivar,
+  Letters = letters,
+  adjust = "tukey"
+)
+
+cultivar_letters
+```
+
+
+# Fitting Linear model with random effect.
+
+```{r}
+mymodel_transformed <- lmer(data = ponder, yield_7_percent_moisture_kg_ha ~ cultivar * water + (1|rep) + (1|rep:water))
+
+anova(mymodel_transformed, type = 1)
+```
+```{r}
+
+mod1_int_aug <- augment(mymodel_transformed) %>%
+  mutate(.stdresid = resid(mymodel_transformed,
+                          type = "pearson",
+                          scaled = T))%>%
+  left_join(ponder)
+
+
+
+mod1_int_aug
+
+```
+
+```{r}
+ggplot(mod1_int_aug, mapping = aes(x =.fitted, y= .stdresid))+
+  geom_point(size = 3,
+             alpha = .7)+
+  geom_hline(yintercept = 0, color = "red")+
+  geom_smooth()
+
+# We don't look for patterns on this graph, we want to see a shotgun effect.
+```
+
+```{r}
+ggplot(mod1_int_aug,
+       aes(sample= .stdresid))+
+  stat_qq() +
+  stat_qq_line()
+
+# QQ plot helps us access if residuals are normally distributed. A normal distribution would follow the qq line. 
+```
+
+```{r}
+mod1_int_randeff <- ranef(mymodel_transformed)[[1]] # Pull the first component of this list.
+
+mod1_int_randeff
+
+ggplot(mod1_int_randeff, 
+       aes(sample = `(Intercept)`)) +
+  stat_qq() +
+  stat_qq_line()
+```
+
+
+
+```{r}
+shapiro.test(residuals(mymodel_transformed))
+
+# Q-Q plot
+qqnorm(residuals(mymodel_transformed))
+qqline(residuals(mymodel_transformed), col = "red")
+
+# Homogeneity of variance
+performance::check_heteroscedasticity(mymodel_transformed)
+```
+
+
+
 # We can still transform.
 
 ```{r}
 
+data_trans <- ponder %>%
+  mutate(yield_transformed = log(yield_7_percent_moisture_kg_ha))
+
+
+data_trans
 ```
 
+```{r}
+
+hist(data_trans$yield_transformed, breaks = 20)
+
+shapiro.test(data_trans$yield_transformed)
+
+```
+
+```{r}
+data_trans_clean <- data_trans %>%
+  filter(yield_transformed > 8.3)
+```
+
+```{r}
+hist(data_trans_clean$yield_transformed, breaks = 20)
+
+shapiro.test(data_trans_clean$yield_transformed)
+```
+
+```{r}
+mymodel_transformed <- lmer(data = data_trans_clean, yield_transformed ~ cultivar * water + (1|rep))
+
+anova(mymodel_transformed)
+```
+```{r}
+shapiro.test(residuals(mymodel_transformed))
+
+# Q-Q plot
+qqnorm(residuals(mymodel_transformed))
+qqline(residuals(mymodel_transformed), col = "red")
+
+# Homogeneity of variance
+performance::check_heteroscedasticity(mymodel_transformed)
+```
 
 
 
