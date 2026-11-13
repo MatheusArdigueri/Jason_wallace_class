@@ -34,7 +34,7 @@ ponder <- ponder %>%
   clean_names() %>%
   select(year, plot, rep, water, cultivar, yield_7_percent_moisture_kg_ha) %>%
   filter(year == 2025) %>%
-  filter(yield_7_percent_moisture_kg_ha < 9000 & yield_7_percent_moisture_kg_ha > 4000)
+  filter(yield_7_percent_moisture_kg_ha > 4000 & yield_7_percent_moisture_kg_ha < 9500)
 
 
 ponder
@@ -60,10 +60,10 @@ scatter <- ggplot(ponder, aes(
     axis.text.x = element_text(size = 20)
   )
 
-ggsave(plot = scatter, "../output/scatter_finalproj.jpg",
-       height = 8,
-       width = 10,
-       dpi = 600)
+# ggsave(plot = scatter, "../output/scatterb4filtering_finalproj.jpg",
+#        height = 8,
+#        width = 10,
+#        dpi = 600)
 
 scatter
 ```
@@ -90,7 +90,7 @@ scatter
     axis.text.x = element_text(size = 20)
   )
 
-# ggsave(plot = hist, "../output/histogram_finalproj.jpg", 
+# ggsave(plot = hist, "../output/histogramafterfilter_finalproj.jpg",
 #        height = 8,
 #        width = 10,
 #        dpi = 600)
@@ -138,13 +138,13 @@ ggsave(plot = boxplot, "../output/boxplot_yield_distribution.jpg",
 
 shapiro.test(ponder$yield_7_percent_moisture_kg_ha)
 
-# However, shapiro looks normal.
+# shapiro looks normal.
 
 ```
 
 ```{r}
 # Estimated marginal means
-emm_cultivar <- emmeans(mymodel_transformed, ~ cultivar)
+emm_cultivar <- emmeans(mymodel_transformed2, ~ cultivar)
 
 # Tukey pairwise comparisons
 pairs(emm_cultivar, adjust = "tukey")
@@ -160,7 +160,7 @@ cultivar_letters
 ```
 ```{r}
 # Estimated marginal means
-emm_cultivar <- emmeans(mymodel_transformed, ~ water)
+emm_cultivar <- emmeans(mymodel_transformed2, ~ water)
 
 # Tukey pairwise comparisons
 pairs(emm_cultivar, adjust = "tukey")
@@ -168,7 +168,6 @@ pairs(emm_cultivar, adjust = "tukey")
 # Group genotypes using letters
 cultivar_letters <- multcomp::cld(
   emm_cultivar,
-  Letters = letters,
   adjust = "tukey"
 )
 
@@ -183,10 +182,18 @@ mymodel_transformed <- lmer(data = ponder, yield_7_percent_moisture_kg_ha ~ cult
 
 anova(mymodel_transformed, type = 1)
 ```
+
+```{r}
+mymodel_transformed2 <- lmer(data = ponder, yield_7_percent_moisture_kg_ha ~ cultivar * water + (1|rep) + (1|rep:water))
+
+anova(mymodel_transformed2, type = 2)
+```
+
+
 ```{r}
 
-mod1_int_aug <- augment(mymodel_transformed) %>%
-  mutate(.stdresid = resid(mymodel_transformed,
+mod1_int_aug <- augment(mymodel_transformed2) %>%
+  mutate(.stdresid = resid(mymodel_transformed2,
                           type = "pearson",
                           scaled = T))%>%
   left_join(ponder)
@@ -198,20 +205,64 @@ mod1_int_aug
 ```
 
 ```{r}
-ggplot(mod1_int_aug, mapping = aes(x =.fitted, y= .stdresid))+
+hist_stdres <- ggplot(data = mod1_int_aug,
+                      aes(x = .stdresid)) +
+  geom_histogram()+
+  theme(
+    axis.title.y = element_text(size = 20),
+    axis.text.y = element_text(size = 20),
+    axis.title.x = element_text(size = 20),
+    axis.text.x = element_text(size = 20)
+  )
+
+ggsave(plot = hist_stdres, "../output/hist_stdres.jpg",
+       height = 8,
+       width = 10,
+       dpi = 600)
+
+hist_stdres
+
+```
+
+
+
+```{r}
+std_res <- ggplot(mod1_int_aug, mapping = aes(x =.fitted, y= .stdresid))+
   geom_point(size = 3,
              alpha = .7)+
-  geom_hline(yintercept = 0, color = "red")+
-  geom_smooth()
+  geom_smooth()+
+  theme(
+    axis.title.y = element_text(size = 20),
+    axis.text.y = element_text(size = 20),
+    axis.title.x = element_text(size = 20),
+    axis.text.x = element_text(size = 20)
+  )
+
+ggsave(plot = std_res, "../output/std_res.jpg",
+       height = 8,
+       width = 10,
+       dpi = 600)
 
 # We don't look for patterns on this graph, we want to see a shotgun effect.
 ```
 
 ```{r}
-ggplot(mod1_int_aug,
+qqplot <- ggplot(mod1_int_aug,
        aes(sample= .stdresid))+
   stat_qq() +
-  stat_qq_line()
+  stat_qq_line()+
+  theme(
+    axis.title.y = element_text(size = 20),
+    axis.text.y = element_text(size = 20),
+    axis.title.x = element_text(size = 20),
+    axis.text.x = element_text(size = 20)
+  )
+
+ggsave(plot = qqplot, "../output/qqplot.jpg",
+       height = 8,
+       width = 10,
+       dpi = 600)
+
 
 # QQ plot helps us access if residuals are normally distributed. A normal distribution would follow the qq line. 
 ```
@@ -230,7 +281,7 @@ ggplot(mod1_int_randeff,
 
 
 ```{r}
-shapiro.test(residuals(mymodel_transformed))
+
 
 # Q-Q plot
 qqnorm(residuals(mymodel_transformed))
@@ -238,6 +289,9 @@ qqline(residuals(mymodel_transformed), col = "red")
 
 # Homogeneity of variance
 performance::check_heteroscedasticity(mymodel_transformed)
+```
+```{r}
+shapiro.test(residuals(mymodel_transformed))
 ```
 
 
